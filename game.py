@@ -109,12 +109,6 @@ def monte_carlo_pre_flop():
         my_strength = evaluate_hand(hole_cards, future_community_cards)
         opponents_strengths = [evaluate_hand(opponents_hands[i:i+2], future_community_cards) for i in range(0, len(opponents_hands), 2)]
 
-        print(temp_deck)
-        print(future_community_cards)
-        print(opponents_hands)
-        print("My strength", my_strength)
-        print("Opponents' Hand Strengths:", opponents_strengths)
-
         # Check if my hand beats all opponent hands
         wins_all = True
         for idx, opponent_strength in enumerate(opponents_strengths):
@@ -129,7 +123,6 @@ def monte_carlo_pre_flop():
 
         if wins_all:
             favorable_outcomes += 1
-            print (favorable_outcomes)
 
     win_percentage = float(favorable_outcomes / num_simulations) * 100
     print("You have a {:.2f}% chance of winning.".format(win_percentage))
@@ -214,13 +207,20 @@ def monte_carlo_post_river():
         my_strength = evaluate_hand(hole_cards, community_cards)
         opponents_strengths = [evaluate_hand(opponents_hands[i:i+2], community_cards) for i in range(0, len(opponents_hands), 2)]
 
-        # Compare with each opponent
-        for opponent_strength in opponents_strengths:
-            if my_strength > opponent_strength:
-                favorable_outcomes += 1
+        # Check if my hand beats all opponent hands
+        wins_all = True
+        for idx, opponent_strength in enumerate(opponents_strengths):
+            if my_strength < opponent_strength:
+                wins_all = False
+                break
             elif my_strength == opponent_strength:
-                if (strength_tiebreaker(my_strength, hole_cards, opponents_hands, community_cards) == True):
-                    favorable_outcomes += 1
+                opponent_hand = opponents_hands[2*idx:2*(idx+1)]
+                if not strength_tiebreaker(my_strength, hole_cards, opponent_hand, []):
+                    wins_all = False
+                    break
+
+        if wins_all:
+            favorable_outcomes += 1
 
     win_percentage = float(favorable_outcomes / num_simulations) * 100
     print("You have a {:.2f}% chance of winning.".format(win_percentage))
